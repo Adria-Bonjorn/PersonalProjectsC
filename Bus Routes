@@ -1,0 +1,163 @@
+/*          -Adrià Bonjorn Cervera- [Aug. 2021]
+
+***Bus routes!!!***
+
+For a given set of coordinates that describe the position of bus stops:
+This code is meant to choose a bus route considering the closest bus stop
+from the current one.
+Different routes are set depending on the initial bus stop.
+Bus stops can not be repeated in the same route.
+The best starting bus stop (shortest route) will be chosen depending on the total 
+distance traveled by the bus.
+
+The code may handle a big amount of bus stops (tested up to BSNumber=500) but the
+code is build considering 10 bus stops (BSNumber=10) so labels on tables may not
+fit for higher amount of bus stops.
+The limit of 500 bus stops doesn't seem to be a problem as a bus would never do 
+such a long route...  
+For tests, the position of each bus stop has been set randomly in a range of 0 to 10,
+meaning that the size of the area where bus stops are is a 10x10(km) square.  
+
+
+*Note: Bus stops are usually refered as BS in code. The bus stops are numerated from
+BS0 to BS(BSNumber-1) for code simplicity reasons...
+*/
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+#include <math.h>
+
+int main(){
+
+
+    #define BSNumber 10 //Number of bus stops
+    int col, row; //Foor loops variables
+    #define MaxMap 10.0 //Meaning that the size of the area where bus stops are is 10km x 10km
+    srand(time(NULL)); //Seed for random generation
+    
+    /*Position Matrix with the coordinates for each bus stop. Setting it with random
+    numbers for testing purposes*/
+    float PositionMatrix[BSNumber][2];
+    printf("\nPosition Matrix\n");
+    printf("      X Coord. Y Coord. \n");
+    for(row=0;row<BSNumber;row++){
+        printf("BS%d: ", row);
+        for(col=0;col<2;col++){
+
+            PositionMatrix[row][col]=(((float)rand()) / ((float)RAND_MAX))*MaxMap;
+            printf("%f  ", PositionMatrix[row][col]);
+        }
+        printf("\n");
+    }
+
+    //Distance Matrix between each bus stop. Size BSNumber x BSNumber, with 0s diagonal
+    float DistanceMatrix[BSNumber][BSNumber];
+    printf("\nDistance Matrix\n");
+
+    printf("          ");
+    for(col=0;col<BSNumber;col++){
+    printf("To BS%d    ", col);
+    }
+    printf("\n");
+    for(row=0;row<BSNumber;row++){
+        printf("From BS%d  ", row);
+        for(col=0;col<BSNumber;col++){
+
+            DistanceMatrix[row][col]=fabs(sqrt(powf((PositionMatrix[row][0]-PositionMatrix[col][0]),2.0)+powf((PositionMatrix[row][1]-PositionMatrix[col][1]),2.0)));
+            printf("%f  ", DistanceMatrix[row][col]);
+
+        }
+        printf("\n");
+    }
+
+    //Routes matrix where each row represents a route 
+    //The routes are stablished considering the closest bus stop from the
+    //current bus stop. Bus stops can not be repeated in the same route.
+    //Different routes are considered depending on the starting bus stop.
+    int rk, count, i, Mincol, check=0, rowR;
+    float Min;
+    int Routes[BSNumber][BSNumber];
+
+    for(row=0;row<BSNumber;row++){               
+        for(col=0;col<BSNumber;col++){        
+            Routes[row][col]=99;
+        }    
+    }
+
+    //First column of Routes represent the starting bus stop of each route
+    for(rk=0;rk<BSNumber;rk++){
+        Routes[rk][0]=rk;
+    }
+
+    for(rowR=0;rowR<BSNumber;rowR++){        
+        row=Routes[rowR][0];
+        count=1; //As column 0 of Routes is already set with the starting bus stops
+        do{
+            Min=MaxMap;
+            for(col=0;col<BSNumber;col++){
+                //Checking if bus stop has already been included in the route
+                for(i=0;i<BSNumber;i++){
+                    if(col==Routes[rowR][i]){check=1;i=BSNumber;break;}
+                    else{check=0;}
+                }                
+                //Choosing the next bus stop
+                if((DistanceMatrix[row][col]<Min) && (DistanceMatrix[row][col]!=0) && (check==0)){
+                    Min=DistanceMatrix[row][col];
+                    Mincol=col;
+                }                
+            }
+            row=Mincol;
+            Routes[rowR][count]=Mincol;
+            count++;
+        }while(count<BSNumber);
+    }
+
+    printf("\nRoutes Matrix\n");
+    for(row=0;row<BSNumber;row++){
+        printf("Route (starting from BS%d):  ", row);               
+        for(col=0;col<BSNumber;col++){ 
+            if(col==BSNumber-1)
+            {
+                printf("BS%d", Routes[row][col]);
+            }
+            else printf("BS%d => ", Routes[row][col]);                   
+        }
+        printf("\n");    
+    }
+
+
+    //Total distance for each route
+    float sum[BSNumber], minsum=MaxMap*BSNumber;
+    int minrow;
+    
+    for(row=0;row<BSNumber;row++){        
+        sum[row]=0;            
+        for(col=0;col<BSNumber-1;col++){
+            sum[row]+=DistanceMatrix[Routes[row][col]][Routes[row][col+1]];
+        }
+
+        //Finding the shortest route in order to choose the best starting bus stop
+        if(sum[row]<minsum){
+            minsum=sum[row];
+            minrow=row;
+        }   
+    }
+
+    printf("\nTotal distance for each route\n");
+    for(row=0;row<BSNumber;row++){        
+        printf("Route (starting from BS%d):  ", row);            
+        if(row==minrow){
+            printf("%f km  <<< Shortest route\n", sum[row]);           
+        }
+        else{
+            printf("%f km", sum[row]);
+            printf("\n");
+        }    
+    }
+
+  
+  
+    return 0;
+}

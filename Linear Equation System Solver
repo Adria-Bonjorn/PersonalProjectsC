@@ -1,0 +1,176 @@
+//Linear Equation System Solver - Adrià Bonjorn Cervera - Aug. 2021
+
+/*
+This script is meant to solve linear equations systems of first order and
+N variables.
+The method used is the Gauss elimination and backwards substitution.
+For testing purposes I'm going to use random values to set the system.
+I will supose that the determinants of the system won't be 0, so I assume that
+ some errors will occur when the suposition is not accomplished for certain 
+ random numbers sets.
+*/
+#include <stdio.h>
+#include <stdlib.h>
+#include <time.h>
+
+
+int main(void){
+
+    int i, j, k;
+
+    //Number of variables of the system
+    #define N 5
+
+    //Declaring the arrays that will define the system
+    float C[N][N], I[N], Ci[N][N], Ii[N], V[N], M=0.0;
+    /*
+    "C" contains the coefficients of each variable of the system.
+    "I" contains the independent values of the system.
+    "V" initially contains the index of each variable, and
+        eventually will contain the value for those variables.
+    "Ci" and "Ii" save the initial system as "C" and "I" will be transformed
+        during Gauss elimination.
+    "M" will contain the factor for Gauss's transformations for each equation and
+        variable.
+    */
+
+
+    //----------------------------------------------
+    //Gauss elimination
+    printf("\n\n-----------SYSTEM SETTING----------\n");
+    //Initializing system. Randomly for testing purposes
+    //Values in range -100 to 100
+    srand(time(NULL));
+    for(i=0;i<N;i++){        
+        for(j=0;j<N;j++){
+        C[i][j]=(float)(rand()%(100+1-(-100)+(-100)));            
+            //Avoiding 0s in the main diagonal
+            if(i==j){
+                while(C[i][j]==0){
+                    C[i][j]=(float)(rand()%(100+1-(-100)+(-100)));
+                }
+            }
+        }
+        I[i]=rand()%(100+1-(-100)+(-100));
+        V[i]=i;
+    }
+
+    //Saving initial system before the elemental trasnformations
+    for(i=0;i<N;i++){        
+        for(j=0;j<N;j++){
+        Ci[i][j]=C[i][j];            
+        Ii[i]=I[i];
+        }
+    }
+
+    
+    //Display the System
+    printf("Coefficient Matrix:\n");
+    for(i=0;i<N;i++){        
+        for(j=0;j<N;j++){
+        printf("%.2f   ",C[i][j]);
+        }
+        printf("\n");
+    }
+    printf("Variables:\n");
+    for(i=0;i<N;i++){        
+        
+        printf("X_%.0f",V[i]);
+        printf("\n");
+    }
+    printf("Independent terms:\n");
+    for(i=0;i<N;i++){        
+        
+        printf("%.2f",I[i]);
+        printf("\n");
+    }
+    printf("\nSystem:\n");
+    for(i=0;i<N;i++){        
+        for(j=0;j<N;j++){
+        printf("%.2f   ",C[i][j]);
+        }
+        printf("x   X_%.0f",V[i]);
+        printf("   =   %.2f",I[i]);
+        printf("\n");
+    }
+
+    //----------------------------------------------
+    //Gauss elimination
+    printf("\n\n---------GAUSS ELIMINATION--------\n");
+    for(k=0;k<(N-1);k++){      
+        for(j=k+1;j<N;j++){            
+            if(C[k][k]==0.0){
+            printf("\nMathematic error");
+            break;
+            }
+            M=(C[j][k])/(C[k][k]);
+            
+            I[j]=I[j]-M*I[k];
+            for(i=k;i<=N;i++){
+                C[j][i]=C[j][i]-(M*C[k][i]);
+
+            }
+        }
+            
+        if(C[k][k]==0.0){
+            
+            break;
+        }
+        
+        printf("\nAfter Gauss elimination of variable X_%d:\n", k);
+        
+        for(i=0;i<N;i++){
+            for(j=0;j<N;j++){
+                printf("%.2f   ",C[i][j]);
+            }
+            printf("x   X_%.0f",V[i]);
+            printf("   =   %.2f",I[i]);
+            printf("\n");
+    }
+        
+    }
+    printf("\nFinal form of the system after Gauss elimination:\n");
+    for(i=0;i<N;i++){        
+        for(j=0;j<N;j++){
+            printf("%.2f   ",C[i][j]);
+        }
+        printf("x   X_%.0f",V[i]);
+        printf("   =   %.2f",I[i]);
+        printf("\n");
+    }
+
+    //----------------------------------------------
+    //Back substitution to solve the system
+    V[N-1]=I[N-1]/C[N-1][N-1];
+    for(i=N-2;i>=0;i--){
+            for(j=i+1;j<N;j++){
+                I[i] = I[i]-C[i][j]*V[j];
+            }
+            V[i]=(I[i])/C[i][i];
+    }
+
+    
+    //----------------------------------------------
+    //Results
+    printf("\n\n----------RESULT SECTION----------\n");
+    //Initial system display
+    printf("\nInitial system:\n");
+    for(i=0;i<N;i++){        
+        for(j=0;j<N;j++){
+        printf("%.2f   ",Ci[i][j]);
+        }
+        printf("x   X_%d",i);
+        printf("   =   %.2f",Ii[i]);
+        printf("\n");
+    }
+
+    //Variables results display
+    printf("\nThe results are:");
+    for(i=0; i<N; i++)
+    {
+        printf("\nX_%d = %.5f",i,V[i]);
+    }
+
+
+    return 0;
+}

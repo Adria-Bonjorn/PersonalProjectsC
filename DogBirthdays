@@ -1,0 +1,139 @@
+//Dog Birthdays - Adrià Bonjorn - Aug. 2021
+
+//Table that includes info about the family dogs and calculates
+//months and days until their birthday.
+
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+#include <time.h>
+#include <string.h>
+
+
+
+//Doge struct
+struct DOG {
+
+    char name[15];
+    int birth_day, birth_month, birth_year;
+    char breed[15];
+
+};
+
+//IsLeap is a function that checks if the input year is a leap year (1) or not (0)
+int IsLeap(int year) {
+   int leap=0;
+
+   // leap year if perfectly divisible by 400
+   if (year % 400 == 0) {
+      leap=1;
+   }
+   // not a leap year if divisible by 100
+   // but not divisible by 400
+   else if (year % 100 == 0) {
+      leap=0;
+   }
+   // leap year if not divisible by 100
+   // but divisible by 4
+   else if (year % 4 == 0) {
+      leap=1;
+   }
+   // all other years are not leap years
+   else {
+      leap=0;
+   }
+
+   return leap;
+}
+
+
+int main(void){
+
+    //Setting information about dogs
+
+    struct DOG dogs[5];
+
+    strcpy(dogs[0].name, "Whisky");
+    dogs[0].birth_day=20;
+    dogs[0].birth_month=3;
+    dogs[0].birth_year=2015;
+    strcpy(dogs[0].breed, "Labrador");
+
+    strcpy(dogs[1].name, "Daddy");
+    dogs[1].birth_day=26;
+    dogs[1].birth_month=5;
+    dogs[1].birth_year=2017;
+    strcpy(dogs[1].breed, "Labrador");
+
+    strcpy(dogs[2].name, "Kiwi");
+    dogs[2].birth_day=28;
+    dogs[2].birth_month=12;
+    dogs[2].birth_year=2020;
+    strcpy(dogs[2].breed, "Schnauzer");
+    
+    strcpy(dogs[3].name, "Yuri");
+    dogs[3].birth_day=11;
+    dogs[3].birth_month=9;
+    dogs[3].birth_year=2016;
+    strcpy(dogs[3].breed, "Pug");
+
+    strcpy(dogs[4].name, "Vostok");
+    dogs[4].birth_day=10;
+    dogs[4].birth_month=7;
+    dogs[4].birth_year=2018;
+    strcpy(dogs[4].breed, "Pug");
+
+    int n=5;
+    int i;
+    int DaysUntil=0, MonthsUntil=0;
+    int DaysPerMonth[12]={31,28,31,30,31,30,31,31,30,31,30,31};
+
+    //Getting current date
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+    printf("\nCurrent Date: %d/%d/%d\n", tm.tm_mday, tm.tm_mon+1, tm.tm_year+1900);
+
+    //Info table
+    printf("[Name]      [Birth]       [Breed]     [Birthday countdown]");    
+    for(i=0;i<n;i++){
+
+        //Checking if current year is a leap year
+        if(IsLeap((tm.tm_year+1900)))
+        {
+            DaysPerMonth[2]=29;
+        }
+
+        //Checking months until birthday
+        if(dogs[i].birth_month >= (tm.tm_mon+1))
+        {
+            MonthsUntil = dogs[i].birth_month - (tm.tm_mon+1);
+        }
+        else
+        {
+            MonthsUntil = (12 - (tm.tm_mon + 1)) + dogs[i].birth_month;
+        }
+
+        //Checking day until birthday
+        if(dogs[i].birth_day >= tm.tm_mday)
+        {
+            DaysUntil = dogs[i].birth_day - tm.tm_mday;
+        }
+        else
+        {
+            DaysUntil = DaysPerMonth[dogs[i].birth_month] - tm.tm_mday + dogs[i].birth_day;
+            MonthsUntil -= 1;
+        }
+
+        
+        //Printing dog info table
+        printf("\n%-12s%-2d/%02d/%-8d%-12s%-3d months %-3d days", dogs[i].name, dogs[i].birth_day, dogs[i].birth_month, dogs[i].birth_year, dogs[i].breed, MonthsUntil, DaysUntil);
+
+    }
+
+
+
+
+
+    return 0;
+}

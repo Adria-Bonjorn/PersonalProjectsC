@@ -1,0 +1,91 @@
+#include<stdio.h>
+#include<stdlib.h>
+#include<string.h>
+
+struct Furniture
+{
+    int Code;
+    char Type[20], Material[20], Color[20];
+    int Stock;
+
+};
+
+struct Orders
+{
+    int Code;
+    char Destination[20];
+    int Ordered, Served, Pending;
+};
+
+int main()
+{
+    //Defining the products
+    struct Furniture FurnitureList[10] = 
+    {   
+        { 1, "Chair", "Wood", "Brown", 1500 },
+        {2,"Chair","Steel","Grey",1000},
+        {3,"Table","Wood","Yellow",500},
+        {4,"Table","Wood","Brown",2000},
+        {5,"Chair","Wood","Blue",1000},
+        {6,"Table","Steel","Grey",500},
+        {7,"Shelves","Wood","Brown",1500},
+        {8,"Shelves","Aluminium","Grey",1500},
+        {9,"Wardrobe","Wood","Brown",500},
+        {10,"Wardrobe","Wood","Blue",200},
+    };
+
+    //Setting destinations
+
+    char DestinationList[10][10] =
+    {
+        "Spain",
+        "France",
+        "Germany",
+        "Italy",
+        "Denmark",
+        "Finland",
+        "Norway",
+        "Belgium",
+        "Sweden",
+        "UK"
+    };
+
+    //Orders input
+    struct Orders OrderList[100];
+    int i;
+    printf("|Order nº   |Destination |Product code|Type       |Material    |Color      |Ordered    |Served      |Pending     ");
+    for(i=0;i<100;1)
+    {
+        OrderList[i].Code = rand() % 10;
+        strcpy(OrderList[i].Destination, DestinationList[rand() % 10]);
+        OrderList[i].Ordered = rand() % 101;
+
+
+        //Check stock of product and determine the quantity of product served and pendent
+        if(FurnitureList[OrderList[i].Code-1].Stock >= OrderList[i].Ordered)
+        {
+            FurnitureList[OrderList[i].Code-1].Stock = FurnitureList[OrderList[i].Code-1].Stock - OrderList[i].Ordered;
+            OrderList[i].Served = OrderList[i].Ordered;
+            OrderList[i].Pending = OrderList[i].Ordered - OrderList[i].Served;
+        } 
+        else if((FurnitureList[OrderList[i].Code-1].Stock < OrderList[i].Ordered) && (FurnitureList[OrderList[i].Code-1].Stock > 0))
+        {
+            OrderList[i].Served = OrderList[i].Ordered - FurnitureList[OrderList[i].Code-1].Stock;
+            OrderList[i].Pending = OrderList[i].Ordered - OrderList[i].Served;
+            FurnitureList[OrderList[i].Code-1].Stock = 0;
+        }
+        else
+        {
+            OrderList[i].Served = 0;
+            OrderList[i].Pending = OrderList[i].Ordered;
+        }
+
+
+    printf("%.12d%.12c%.12d%.12c%.12c%.12c%.12d%.12d%.12d",i,OrderList[i].Destination,OrderList[i].Code,FurnitureList[OrderList[i].Code-1].Type,FurnitureList[OrderList[i].Code-1].Material,FurnitureList[OrderList[i].Code-1].Color,OrderList[i].Ordered,OrderList[i].Served,OrderList[i].Pending);    
+
+        
+    }
+
+
+    return 0;
+}
